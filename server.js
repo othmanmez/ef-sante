@@ -5,7 +5,12 @@ const path = require('path');
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server);
+const io = socketIo(server, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"]
+    }
+});
 
 // Servir les fichiers statiques
 app.use(express.static('public'));
@@ -116,6 +121,7 @@ function getScoreMessage(score) {
 // Gestion des connexions Socket.io
 io.on('connection', (socket) => {
   console.log('Nouveau joueur connecté:', socket.id);
+  console.log('Socket.io configuré correctement');
 
   // Créer une nouvelle partie
   socket.on('create-game', (data) => {
@@ -287,4 +293,13 @@ const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {
   console.log(`🚀 Serveur EF HEALTH démarré sur le port ${PORT}`);
   console.log(`📱 Accédez au site: http://localhost:${PORT}`);
+});
+
+// Gestion des erreurs
+process.on('uncaughtException', (err) => {
+  console.error('Erreur non gérée:', err);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Promesse rejetée non gérée:', reason);
 });
