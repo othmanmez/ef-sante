@@ -10,6 +10,16 @@ const io = socketIo(server);
 // Servir les fichiers statiques
 app.use(express.static('public'));
 
+// Route pour la page d'accueil
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Route pour la page quiz
+app.get('/quiz', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'quiz.html'));
+});
+
 // Stockage des parties et joueurs
 const games = new Map();
 const players = new Map();
