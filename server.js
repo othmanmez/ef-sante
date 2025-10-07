@@ -5,19 +5,28 @@ const path = require('path');
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server, {
-    cors: {
-        origin: "*",
-        methods: ["GET", "POST"]
-    }
-});
+const io = socketIo(server);
 
 // Servir les fichiers statiques
 app.use(express.static('public'));
 
 // Route pour servir l'index à la racine
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Route pour la page quiz
+app.get('/quiz', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'quiz.html'));
+});
+
+// Route pour les fichiers statiques
+app.get('/style.css', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'style.css'));
+});
+
+app.get('/script.js', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'script.js'));
 });
 
 // Stockage des parties et joueurs
