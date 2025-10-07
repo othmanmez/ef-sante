@@ -35,7 +35,7 @@ io.on('connection', (socket) => {
     });
 });
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3002;
 server.listen(PORT, () => {
     console.log(`🚀 Serveur EF HEALTH démarré sur le port ${PORT}`);
     console.log(`📱 Accédez au site: http://localhost:${PORT}`);
