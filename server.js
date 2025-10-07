@@ -20,14 +20,6 @@ app.get('/quiz', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'quiz.html'));
 });
 
-// Route pour les fichiers statiques
-app.get('/style.css', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'style.css'));
-});
-
-app.get('/script.js', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'script.js'));
-});
 
 // Stockage des parties et joueurs
 const games = new Map();
@@ -281,16 +273,6 @@ io.on('connection', (socket) => {
     }
     console.log('Joueur déconnecté:', socket.id);
   });
-});
-
-// Route pour la page d'accueil
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-// Route pour la page du quiz
-app.get('/quiz', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'quiz.html'));
 });
 
 // Route pour obtenir les questions
