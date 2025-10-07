@@ -38,13 +38,35 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Initialiser Socket.io
-    socket = io();
+    socket = io({
+        transports: ['websocket', 'polling']
+    });
     
     // Configurer les événements Socket.io
     setupSocketEvents();
     
-    // Charger les questions
-    loadQuestions();
+    // Logs de debug pour la connexion
+    socket.on('connect', function() {
+        console.log('✅ Connecté au serveur Socket.io');
+    });
+    
+    socket.on('disconnect', function() {
+        console.log('❌ Déconnecté du serveur Socket.io');
+    });
+    
+    socket.on('connect_error', function(error) {
+        console.error('❌ Erreur de connexion Socket.io:', error);
+        showError('Connection error to quiz');
+    });
+    
+    // Charger les questions via Socket.io
+    socket.on('questions-loaded', function(loadedQuestions) {
+        console.log('✅ Questions reçues via Socket.io:', loadedQuestions.length);
+        questions = loadedQuestions;
+        totalQuestionsSpan.textContent = questions.length;
+        hideLoading();
+        showQuiz();
+    });
     
     // Rejoindre la partie
     socket.emit('join-game', {
@@ -246,8 +268,103 @@ function selectAnswer(questionId, answerIndex) {
         } else {
             // All questions are finished
             console.log('All questions are finished');
+            
+            // Calculate final score
+            const finalScore = calculateScore();
+            console.log('Final score:', finalScore);
+            
+            // Show final results
+            showFinalResults([{
+                name: playerName,
+                score: finalScore,
+                answers: playerAnswers
+            }]);
         }
     }, 1500); // Délai de 1.5 seconde pour voir la réponse sélectionnée
+}
+
+// Calculate player score based on answers
+function calculateScore() {
+    let score = 0;
+    
+    playerAnswers.forEach((answerIndex, questionIndex) => {
+        const questionId = questionIndex + 1;
+        const answer = questions[questionIndex].options[answerIndex];
+        
+        switch(questionId) {
+            case 1: // Sleep 8 hours
+                if (answer === 'always') score += 3;
+                else if (answer === 'sometimes') score += 2;
+                break;
+            case 2: // Fruits and vegetables
+                if (answer === 'always') score += 3;
+                else if (answer === 'sometimes') score += 2;
+                break;
+            case 3: // Cook at home
+                if (answer === 'always') score += 3;
+                else if (answer === 'sometimes') score += 2;
+                break;
+            case 4: // Physical activity
+                if (answer === 'always') score += 3;
+                else if (answer === 'sometimes') score += 2;
+                break;
+            case 5: // Move regularly
+                if (answer === 'always') score += 3;
+                else if (answer === 'sometimes') score += 2;
+                break;
+            case 6: // Drink water
+                if (answer === 'always') score += 3;
+                else if (answer === 'sometimes') score += 2;
+                break;
+            case 7: // Alcohol/tobacco (negative)
+                if (answer === 'never') score += 3;
+                else if (answer === 'sometimes') score += 1;
+                break;
+            case 8: // Time for yourself
+                if (answer === 'always') score += 3;
+                else if (answer === 'sometimes') score += 2;
+                break;
+            case 9: // Fast food (negative)
+                if (answer === 'never') score += 3;
+                else if (answer === 'sometimes') score += 1;
+                break;
+        }
+    });
+    
+    return score;
+}
+
+// Get score message and advice
+function getScoreMessage(score) {
+    if (score >= 24 && score <= 27) {
+        return {
+            level: "Excellent health!",
+            emoji: "🌿",
+            message: "Congratulations! You have excellent health habits that you maintain consistently. Your lifestyle choices show a strong commitment to your well-being.",
+            advice: "Keep up the fantastic work! Continue maintaining these healthy habits and consider sharing your knowledge with others. You're a great example of healthy living."
+        };
+    } else if (score >= 18 && score <= 23) {
+        return {
+            level: "Good health, room for improvement.",
+            emoji: "🙂",
+            message: "You have a good foundation of healthy habits, but there's definitely room for improvement. You're on the right track!",
+            advice: "Focus on the areas where you scored lower. Try to gradually improve one habit at a time. Small, consistent changes can make a big difference in your overall health."
+        };
+    } else if (score >= 9 && score <= 17) {
+        return {
+            level: "Health habits need improvement.",
+            emoji: "⚠️",
+            message: "Your health habits need significant improvement. Don't worry - it's never too late to start making positive changes!",
+            advice: "Start with small, achievable goals. Focus on one or two habits at a time. Consider consulting with a healthcare professional for personalized advice on improving your lifestyle."
+        };
+    } else {
+        return {
+            level: "Critical health habits.",
+            emoji: "🚨",
+            message: "Your current health habits are concerning and need immediate attention. Your health is at risk.",
+            advice: "Please consult with a healthcare professional immediately. Start making small changes today - even small improvements can have a significant impact on your health."
+        };
+    }
 }
 
 // Update scores (hidden during quiz)
@@ -310,6 +427,27 @@ function showFinalResults(finalScores) {
             }, index * 200);
         });
     }, 100);
+}
+
+// Hide loading section
+function hideLoading() {
+    loadingSection.style.display = 'none';
+}
+
+// Show quiz section
+function showQuiz() {
+    // Hide other sections
+    loadingSection.style.display = 'none';
+    playersSection.style.display = 'none';
+    scoresSection.style.display = 'none';
+    gameFinishedSection.style.display = 'none';
+    errorSection.style.display = 'none';
+    
+    // Show quiz section
+    quizSection.style.display = 'block';
+    
+    // Start the quiz
+    showQuestion(questions[0]);
 }
 
 // Show an error

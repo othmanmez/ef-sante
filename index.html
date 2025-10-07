@@ -148,14 +148,28 @@
         // Gestionnaires d'événements Socket.io
         socket.on('game-created', function(data) {
             console.log('Partie créée:', data);
-            // Rediriger vers le quiz
-            window.location.href = '/quiz';
+            // Afficher un bouton pour lancer le quiz
+            const startQuizBtn = document.createElement('div');
+            startQuizBtn.innerHTML = '<button id="startQuizBtn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 15px 30px; border-radius: 25px; font-size: 1.1rem; cursor: pointer; margin-top: 15px; width: 100%; transition: transform 0.2s;">🎮 Start Quiz</button>';
+            document.getElementById('generatedCodeSection').appendChild(startQuizBtn);
+            
+            // Ajouter l'événement au bouton
+            document.getElementById('startQuizBtn').addEventListener('click', function() {
+                window.location.href = '/quiz';
+            });
         });
         
         socket.on('game-joined', function(data) {
             console.log('Partie rejointe:', data);
-            // Rediriger vers le quiz
-            window.location.href = '/quiz';
+            // Afficher un bouton pour lancer le quiz
+            const startQuizBtn = document.createElement('div');
+            startQuizBtn.innerHTML = '<button id="startQuizBtnJoin" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 15px 30px; border-radius: 25px; font-size: 1.1rem; cursor: pointer; margin-top: 15px; width: 100%; transition: transform 0.2s;">🎮 Start Quiz</button>';
+            document.querySelector('.join-form').appendChild(startQuizBtn);
+            
+            // Ajouter l'événement au bouton
+            document.getElementById('startQuizBtnJoin').addEventListener('click', function() {
+                window.location.href = '/quiz';
+            });
         });
         
         socket.on('game-error', function(data) {
@@ -174,6 +188,7 @@
         // Formulaire de connexion
         document.getElementById('joinForm').addEventListener('submit', function(e) {
             e.preventDefault();
+            console.log('Formulaire de connexion soumis');
             
             const playerName = document.getElementById('playerName').value.trim();
             const gameCode = document.getElementById('gameCode').value.trim();
@@ -193,6 +208,7 @@
         
         // Bouton pour créer une partie
         document.getElementById('createGameBtn').addEventListener('click', function() {
+            console.log('Bouton créer une partie cliqué');
             // Masquer le formulaire de connexion
             document.querySelector('.join-form').style.display = 'none';
             // Afficher le formulaire de création
@@ -206,6 +222,7 @@
         
         // Générer un code de partie
         document.getElementById('generateCodeBtn').addEventListener('click', function() {
+            console.log('Bouton générer code cliqué');
             const creatorName = document.getElementById('creatorName').value.trim();
             const gameName = document.getElementById('gameName').value.trim();
             
