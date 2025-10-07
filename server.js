@@ -12,7 +12,7 @@ app.use(express.static('public'));
 
 // Route pour servir l'index à la racine
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // Route pour la page quiz

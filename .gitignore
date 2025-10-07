@@ -8,3 +8,5 @@ yarn-error.log*
 test.js
 simple-server.js
 minimal-server.js
+test-deployment.js
+index-fallback.html
