@@ -22,7 +22,7 @@ npm install
 npm start
 ```
 
-3. Open your browser and go to `http://localhost:3001`
+3. Open your browser and go to `http://localhost:3301`
 
 ## Deployment
 
@@ -44,9 +44,8 @@ ef-sante/
 ├── server.js          # Main server file
 ├── package.json       # Dependencies
 ├── Procfile           # Heroku process file
-├── index.html         # Root redirect page
+├── index.html         # Main application page (root)
 └── public/            # Static files
-    ├── index.html     # Main application page
     ├── quiz.html      # Quiz page
     ├── script.js      # Client-side JavaScript
     └── style.css      # Styles

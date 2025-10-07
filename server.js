@@ -1,7 +1,11 @@
+console.log('🚀 Starting EF HEALTH server...');
+
 const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
 const path = require('path');
+
+console.log('✅ Dependencies loaded successfully');
 
 const app = express();
 const server = http.createServer(app);
@@ -14,7 +18,7 @@ const io = socketIo(server, {
 
 // Servir les fichiers statiques
 app.use(express.static('public'));
-app.use(express.static('.'));
+app.use(express.static('.', { index: false })); // Éviter les conflits avec index.html
 
 // Route pour servir l'index à la racine
 app.get('/', (req, res) => {
@@ -24,6 +28,15 @@ app.get('/', (req, res) => {
 // Route pour la page quiz
 app.get('/quiz', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'quiz.html'));
+});
+
+// Routes explicites pour les fichiers critiques
+app.get('/script.js', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'script.js'));
+});
+
+app.get('/style.css', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'style.css'));
 });
 
 // Questions du quiz
@@ -177,6 +190,7 @@ io.on('connection', (socket) => {
         console.log('Rejoindre partie:', data);
         
         const gameId = data.gameCode;
+        console.log('Recherche de la partie:', gameId, 'Parties disponibles:', Array.from(games.keys()));
         const game = games.get(gameId);
         
         if (!game) {
@@ -184,9 +198,15 @@ io.on('connection', (socket) => {
             return;
         }
         
-        if (game.status !== 'waiting') {
+        if (game.status === 'playing' || game.status === 'finished') {
             socket.emit('game-error', { message: 'Game already started or finished' });
             return;
+        }
+        
+        // Réactiver la partie si elle était inactive
+        if (game.status === 'inactive') {
+            game.status = 'waiting';
+            console.log('Partie réactivée:', gameId);
         }
         
         // Ajouter le joueur à la partie
@@ -253,10 +273,18 @@ io.on('connection', (socket) => {
                 // Notifier les joueurs restants
                 io.to(playerData.gameId).emit('players-updated', Array.from(game.players.values()));
                 
-                // Si plus de joueurs, supprimer la partie
+                // Si plus de joueurs, marquer la partie comme inactive mais la garder un moment
                 if (game.players.size === 0) {
-                    games.delete(playerData.gameId);
-                    console.log('Partie supprimée:', playerData.gameId);
+                    game.status = 'inactive';
+                    console.log('Partie marquée comme inactive:', playerData.gameId);
+                    
+                    // Supprimer la partie après 5 minutes d'inactivité
+                    setTimeout(() => {
+                        if (games.has(playerData.gameId) && games.get(playerData.gameId).players.size === 0) {
+                            games.delete(playerData.gameId);
+                            console.log('Partie supprimée après timeout:', playerData.gameId);
+                        }
+                    }, 5 * 60 * 1000); // 5 minutes
                 }
             }
         }
@@ -264,7 +292,14 @@ io.on('connection', (socket) => {
 });
 
 const PORT = process.env.PORT || 3301;
+console.log(`🔧 Attempting to start server on port ${PORT}`);
+
 server.listen(PORT, () => {
     console.log(`🚀 Serveur EF HEALTH démarré sur le port ${PORT}`);
     console.log(`📱 Accédez au site: http://localhost:${PORT}`);
+}).on('error', (err) => {
+    console.error('❌ Server error:', err);
+    if (err.code === 'EADDRINUSE') {
+        console.error(`Port ${PORT} is already in use. Try a different port.`);
+    }
 });
