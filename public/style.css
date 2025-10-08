@@ -378,17 +378,22 @@ body {
 .players-list.single-player {
     justify-content: center;
     gap: 0;
+    max-width: 300px;
+    margin: 0 auto;
 }
 
 .players-list.two-players {
     justify-content: space-evenly;
-    gap: 15px;
+    gap: 20px;
+    max-width: 500px;
+    margin: 0 auto;
 }
 
 .players-list.multiple-players {
     justify-content: center;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 10px;
+    max-width: 100%;
 }
 
 .player-item {
@@ -410,22 +415,26 @@ body {
 }
 
 /* Adaptation des items selon le nombre de joueurs */
+
 .single-player .player-item {
-    min-width: 180px;
-    padding: 15px 25px;
-    font-size: 1rem;
+    min-width: 200px;
+    padding: 16px 24px;
+    font-size: 1.1rem;
+    text-align: center;
 }
 
 .two-players .player-item {
-    min-width: 160px;
-    padding: 14px 22px;
-    font-size: 0.95rem;
+    min-width: 180px;
+    padding: 14px 20px;
+    font-size: 1rem;
+    text-align: center;
 }
 
 .multiple-players .player-item {
-    min-width: 120px;
-    padding: 10px 16px;
-    font-size: 0.9rem;
+    min-width: 140px;
+    padding: 12px 18px;
+    font-size: 0.95rem;
+    text-align: center;
 }
 
 /* Adaptation responsive pour mobile */

@@ -82,6 +82,11 @@ function setupSocketEvents() {
         updatePlayersList(players);
     });
     
+    socket.on('game-finished', function(finalScores) {
+        console.log('Jeu terminé, résultats finaux:', finalScores);
+        showFinalResults(finalScores);
+    });
+    
     // Mise à jour du statut de la partie
     socket.on('game-status', function(status) {
         updateGameStatus(status);
@@ -405,11 +410,14 @@ function showFinalResults(finalScores) {
             <div class="ranking-info">
                 <div class="ranking-name">${player.name}</div>
                 <div class="ranking-score">${player.score} points</div>
-                <div class="ranking-message" style="color: ${player.message.color}">
-                    ${player.message.emoji} ${player.message.message}
+                <div class="ranking-message">
+                    ${player.scoreMessage.emoji} ${player.scoreMessage.level}
                 </div>
-                <div class="ranking-advice" style="color: ${player.message.color}">
-                    💡 ${player.message.advice}
+                <div class="ranking-advice">
+                    💡 ${player.scoreMessage.message}
+                </div>
+                <div class="ranking-advice-detail">
+                    ${player.scoreMessage.advice}
                 </div>
             </div>
         `;

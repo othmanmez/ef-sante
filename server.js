@@ -143,6 +143,39 @@ function calculateScore(answers) {
     return score;
 }
 
+// Fonction pour obtenir le message de score
+function getScoreMessage(score) {
+    if (score >= 24 && score <= 27) {
+        return {
+            level: "Excellent health!",
+            emoji: "🌿",
+            message: "Congratulations! You have excellent health habits that you maintain consistently. Your lifestyle choices show a strong commitment to your well-being.",
+            advice: "Keep up the fantastic work! Continue maintaining these healthy habits and consider sharing your knowledge with others. You're a great example of healthy living."
+        };
+    } else if (score >= 18 && score <= 23) {
+        return {
+            level: "Good health, room for improvement.",
+            emoji: "🙂",
+            message: "You have a good foundation of healthy habits, but there's definitely room for improvement. You're on the right track!",
+            advice: "Focus on the areas where you scored lower. Try to gradually improve one habit at a time. Small, consistent changes can make a big difference in your overall health."
+        };
+    } else if (score >= 9 && score <= 17) {
+        return {
+            level: "Health habits need improvement.",
+            emoji: "⚠️",
+            message: "Your health habits need significant improvement. Don't worry - it's never too late to start making positive changes!",
+            advice: "Start with small, achievable goals. Focus on one or two habits at a time. Consider consulting with a healthcare professional for personalized advice on improving your lifestyle."
+        };
+    } else {
+        return {
+            level: "Critical health habits.",
+            emoji: "🚨",
+            message: "Your current health habits are concerning and need immediate attention. Your health is at risk.",
+            advice: "Please consult with a healthcare professional immediately. Start making small changes today - even small improvements can have a significant impact on your health."
+        };
+    }
+}
+
 // Stockage des parties et joueurs
 const games = new Map();
 const players = new Map();
@@ -249,7 +282,26 @@ io.on('connection', (socket) => {
                     player.score = calculateScore(player.answers.map((answerIndex, questionIndex) => 
                         questions[questionIndex].options[answerIndex] || 'never'
                     ));
+                    player.isFinished = true;
                     console.log('Score calculé pour', player.name, ':', player.score);
+                    
+                    // Vérifier si tous les joueurs ont fini
+                    const allPlayers = Array.from(game.players.values());
+                    const finishedPlayers = allPlayers.filter(p => p.isFinished);
+                    
+                    if (finishedPlayers.length === allPlayers.length) {
+                        // Tous les joueurs ont fini, envoyer les résultats finaux
+                        game.status = 'finished';
+                        const finalScores = allPlayers.map(p => ({
+                            name: p.name,
+                            score: p.score,
+                            answers: p.answers,
+                            scoreMessage: getScoreMessage(p.score)
+                        })).sort((a, b) => b.score - a.score);
+                        
+                        console.log('Tous les joueurs ont fini, envoi des résultats finaux');
+                        io.to(playerData.gameId).emit('game-finished', finalScores);
+                    }
                 }
                 
                 // Notifier tous les joueurs de la partie
